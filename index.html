@@ -32,16 +32,16 @@
     color:var(--text);
     background:var(--bg);
   }
-  .app{max-width:1680px;margin:0 auto;padding:20px}
+  .app{max-width:1360px;margin:0 auto;padding:12px}
   .hero{
     background:linear-gradient(135deg,#56131d 0%,#7b1e2b 55%,#a34a56 100%);
-    color:#fff;border-radius:22px;padding:24px 28px;box-shadow:var(--shadow);margin-bottom:18px
+    color:#fff;border-radius:18px;padding:16px 20px;box-shadow:var(--shadow);margin-bottom:12px
   }
-  .hero h1{margin:0 0 6px;font-size:28px;letter-spacing:.2px}
-  .hero p{margin:0;color:rgba(255,255,255,.84);font-size:14px;line-height:1.6}
+  .hero h1{margin:0 0 4px;font-size:23px;letter-spacing:.1px}
+  .hero p{margin:0;color:rgba(255,255,255,.84);font-size:12px;line-height:1.45}
   .hero .privacy{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
   .hero .privacy span{font-size:12px;padding:6px 10px;border:1px solid rgba(255,255,255,.25);border-radius:999px;background:rgba(255,255,255,.08)}
-  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
   .upload-card,.panel{
     background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)
   }
@@ -61,9 +61,9 @@
   select,input[type="number"],input[type="text"]{
     width:100%;border:1px solid #d1d5db;border-radius:8px;padding:6px 8px;background:#fff;color:var(--text);font-size:12px
   }
-  .actions{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+  .actions{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
   button{
-    border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer;font-size:13px;
+    border:0;border-radius:9px;padding:8px 11px;font-weight:800;cursor:pointer;font-size:11.5px;
     background:#e5e7eb;color:#111827
   }
   button.primary{background:var(--brand);color:#fff}
@@ -75,50 +75,50 @@
   .settings.open{display:block}
   .settings-grid{display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:10px}
   .field label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:5px}
-  .panel{margin:16px 0;overflow:hidden}
+  .panel{margin:10px 0;overflow:hidden}
   .panel-head{
-    display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid var(--line);background:#fff
+    display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:#fff
   }
-  .panel-title{font-size:16px;font-weight:900}
-  .panel-sub{font-size:12px;color:var(--muted);margin-top:3px}
-  .panel-body{padding:14px 16px}
-  .kpis{display:grid;grid-template-columns:repeat(8,minmax(135px,1fr));gap:10px}
+  .panel-title{font-size:14px;font-weight:900}
+  .panel-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .panel-body{padding:9px 10px}
+  .kpis{display:grid;grid-template-columns:repeat(8,minmax(108px,1fr));gap:7px}
   .kpi{
-    background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 4px 14px rgba(17,24,39,.04)
+    background:#fff;border:1px solid var(--line);border-radius:11px;padding:10px;box-shadow:0 4px 14px rgba(17,24,39,.04)
   }
-  .kpi .label{font-size:11px;color:var(--muted);font-weight:700;line-height:1.35}
-  .kpi .value{font-size:26px;font-weight:900;margin-top:5px}
+  .kpi .label{font-size:10px;color:var(--muted);font-weight:700;line-height:1.25}
+  .kpi .value{font-size:28px;font-weight:900;margin-top:3px;line-height:1}
   .kpi .hint{font-size:11px;color:var(--muted);margin-top:3px}
   .check-grid{display:grid;grid-template-columns:repeat(6,minmax(150px,1fr));gap:10px}
   .check-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fafafa}
   .check-card b{display:block;font-size:22px}
   .check-card span{font-size:11px;color:var(--muted)}
   .badge{
-    display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:900;white-space:nowrap
+    display:inline-flex;align-items:center;gap:4px;padding:3px 6px;border-radius:999px;font-size:10px;font-weight:900;white-space:nowrap
   }
   .badge.red{background:var(--danger-bg);color:var(--danger)}
   .badge.orange{background:var(--warn-bg);color:var(--warn)}
   .badge.green{background:var(--ok-bg);color:var(--ok)}
   .badge.blue{background:var(--blue-bg);color:var(--blue)}
   .badge.gray{background:#f2f4f7;color:#475467}
-  .table-wrap{overflow:auto;max-height:520px;border:1px solid var(--line);border-radius:12px}
-  table{width:100%;border-collapse:separate;border-spacing:0;min-width:1120px;font-size:12px}
-  th,td{padding:9px 10px;border-bottom:1px solid var(--line);background:#fff;vertical-align:middle}
+  .table-wrap{overflow:auto;max-height:500px;border:1px solid var(--line);border-radius:10px}
+  table{width:100%;border-collapse:separate;border-spacing:0;min-width:930px;font-size:13px;table-layout:auto}
+  th,td{padding:7px 6px;border-bottom:1px solid var(--line);background:#fff;vertical-align:middle;white-space:nowrap}
   th{
-    position:sticky;top:0;z-index:2;background:#f8fafc;font-size:11px;text-transform:uppercase;letter-spacing:.3px;
+    position:sticky;top:0;z-index:2;background:#f8fafc;font-size:10px;text-transform:uppercase;letter-spacing:.15px;
     color:#475467;text-align:left;white-space:nowrap;cursor:pointer
   }
   tr:hover td{background:#fafafa}
   tr.row-danger td{background:#fff7f6}
   tr.row-danger:hover td{background:#fff0ee}
-  td.num{text-align:right;font-variant-numeric:tabular-nums}
-  .code-link{font-weight:900;color:var(--brand);cursor:pointer;text-decoration:none}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;font-size:14px;font-weight:800}
+  .code-link{font-weight:900;color:var(--brand);cursor:pointer;text-decoration:none;font-size:14px}
   .code-link:hover{text-decoration:underline}
   .muted{color:var(--muted)}
-  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .toolbar input{width:220px}
-  .filterbar{display:flex;gap:8px;flex-wrap:wrap}
-  .filter-btn{padding:7px 9px;border:1px solid var(--line);background:#fff;font-size:11px}
+  .toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .toolbar input{width:180px}
+  .filterbar{display:flex;gap:5px;flex-wrap:wrap}
+  .filter-btn{padding:6px 8px;border:1px solid var(--line);background:#fff;font-size:10.5px}
   .filter-btn.active{background:#2f3440;color:#fff;border-color:#2f3440}
   .matrix{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
   .matrix-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
@@ -143,6 +143,29 @@
   .error-list{margin-top:12px;display:grid;gap:8px}
   .error-item{padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:12px}
   .note{font-size:11px;color:var(--muted);line-height:1.5}
+
+  @media(max-width:1180px){
+    .app{max-width:100%;padding:8px}
+    .hero{padding:12px 14px}
+    .hero h1{font-size:20px}
+    .grid3{gap:7px}
+    .upload-card{padding:8px}
+    .select-row{grid-template-columns:84px 1fr;gap:4px;margin-top:4px}
+    .select-row label{font-size:9.5px}
+    select,input[type="number"],input[type="text"]{padding:5px 6px;font-size:10.5px}
+    .kpis{grid-template-columns:repeat(4,1fr)}
+    table{min-width:860px;font-size:12px}
+    th,td{padding:6px 4px}
+    td.num,.code-link{font-size:13px}
+    .badge{padding:3px 5px;font-size:9px}
+  }
+  @media(max-width:1024px){
+    .hero .privacy{display:none}
+    .panel-sub{display:none}
+    .actions button{padding:7px 9px}
+    table{min-width:820px}
+  }
+
   @media(max-width:1200px){
     .kpis{grid-template-columns:repeat(4,1fr)}
     .settings-grid{grid-template-columns:repeat(4,1fr)}
@@ -157,18 +180,27 @@
     .check-grid{grid-template-columns:repeat(2,1fr)}
     .matrix{grid-template-columns:1fr}
   }
+
+  /* V5 compact table sizing */
+  table th:nth-child(1), table td:nth-child(1){width:42px;min-width:42px;text-align:center}
+  table th:nth-child(2), table td:nth-child(2){width:105px;min-width:100px}
+  table td{line-height:1.2}
+  .table-wrap::-webkit-scrollbar{height:8px;width:8px}
+  .table-wrap::-webkit-scrollbar-thumb{background:#c9cdd4;border-radius:8px}
+  .table-wrap::-webkit-scrollbar-track{background:#f5f6f7}
+
 </style>
 </head>
 <body>
 <div class="app">
   <section class="hero">
-    <h1>SEVEN.AM — PRODUCT × ADS × TỒN KHO · V2</h1>
+    <h1>SEVEN.AM — PRODUCT × ADS × TỒN KHO</h1>
     <p>Phân tích đồng thời file Tồn kho, Quảng cáo và Đơn hàng để xác định mã bán chạy, cảnh báo tồn, mã chưa chạy Ads và ứng viên nên test/vít Ads.</p>
     <div class="privacy">
       <span>100% xử lý trên trình duyệt</span>
       <span>Không upload dữ liệu lên server</span>
       <span>Ưu tiên độ chính xác nhận mã</span>
-      <span>V3: Size theo đuôi 1–5</span>
+      <span> </span>
     </div>
   </section>
 
@@ -451,7 +483,7 @@ function normalizeProductCode(value){
 
 function detectSize(sku){
   const s = String(sku ?? "").toUpperCase().replace(/\s+/g,"").trim();
-  // V3: mã sản phẩm con dùng 1 ký tự cuối để biểu thị size:
+  // Mã sản phẩm con dùng 1 ký tự cuối để biểu thị size:
   // 1=S, 2=M, 3=L, 4=XL, 5=XXL.
   const m = s.match(/([1-5])$/);
   if(!m) return {size:null,sizeCode:null};
@@ -465,7 +497,7 @@ function getParentCode(sku){
   const {sizeCode} = detectSize(raw);
   let base = sizeCode ? raw.slice(0,-1) : raw;
 
-  // V3: mã cha = mã sản phẩm con sau khi bỏ đúng 1 ký tự size cuối.
+  // Mã cha = mã sản phẩm con sau khi bỏ đúng 1 ký tự size cuối.
   // Ví dụ: B730358I2 -> B730358I (size M).
   let direct = normalizeProductCode(base);
   if(direct) return direct;
@@ -1029,7 +1061,6 @@ function sizeCell(item,size,settings){
 function rowToExport(item){
   return {
     "Mã sản phẩm":item.code,
-    "Tên sản phẩm":item.name,
     "Giá bán":item.price??"",
     "SL bán":item.soldQty,
     "Số đơn":item.orderCount,
@@ -1054,7 +1085,7 @@ function renderTable(items,targetId,opts={}){
   if(!items.length){target.innerHTML=`<div class="empty">${opts.empty||"Không có dữ liệu phù hợp."}</div>`;return;}
   const settings=getSettings();
   const showScore=opts.showScore!==false;
-  const showName=opts.showName!==false;
+  const showName=false;
 
   let html=`<div class="table-wrap"><table><thead><tr>
     <th>STT</th><th>Mã</th>${showName?"<th>Tên sản phẩm</th>":""}
@@ -1159,7 +1190,7 @@ function renderKpis(items,lists){
 function buildLists(combined,settings){
   const items=combined.items;
 
-  // V4: nhóm "sắp hết" riêng cho các mã ĐANG CHẠY ADS.
+  // Nhóm "sắp hết" riêng cho các mã ĐANG CHẠY ADS.
   // Điều kiện theo yêu cầu: chỉ còn <= 2 size HOẶC tổng tồn < 5.
   const adsLowStock=[...items]
     .filter(x=>x.inAds && x.inInventory && (x.sizeCoverage<=2 || x.totalStock<5))
@@ -1271,7 +1302,7 @@ function renderFilters(){
 
 function filterItems(items){
   const q=normalizeHeader(document.getElementById("search-code").value);
-  let arr=items.filter(x=>!q || normalizeHeader(`${x.code} ${x.name}`).includes(q));
+  let arr=items.filter(x=>!q || normalizeHeader(x.code).includes(q));
   const s=getSettings();
 
   switch(APP.activeFilter){
@@ -1335,7 +1366,7 @@ function renderAllTable(){
   if(!arr.length){target.innerHTML=`<div class="empty">Không có dữ liệu phù hợp bộ lọc.</div>`;return;}
 
   const headers=[
-    ["code","Mã"],["name","Tên sản phẩm"],["price","Giá"],["soldQty","SL bán"],["orderCount","Số đơn"],["revenue","Doanh thu"],
+    ["code","Mã"],["price","Giá"],["soldQty","SL bán"],["orderCount","Số đơn"],["revenue","Doanh thu"],
     ["totalStock","Tổng tồn"],["coverage","Phủ size"],["ads","Ads"],["score","Điểm Ads"]
   ];
   let html=`<div class="table-wrap"><table><thead><tr><th>STT</th>`;
@@ -1346,7 +1377,6 @@ function renderAllTable(){
     html+=`<tr class="${x.stockAlert?"row-danger":""}">
       <td>${i+1}</td>
       <td><a class="code-link" data-code="${escapeAttr(x.code)}">${escapeHtml(x.code)}</a></td>
-      <td>${escapeHtml(x.name||"—")}</td>
       <td class="num">${money(x.price)}</td>
       <td class="num">${num(x.soldQty)}</td>
       <td class="num">${num(x.orderCount)}</td>
@@ -1377,7 +1407,7 @@ function renderDashboard(){
   if(!P) return;
   document.getElementById("dashboard-area").style.display="block";
 
-  // V4: 4 nhóm hành động luôn hiển thị trước toàn bộ các thống kê còn lại.
+  // 4 nhóm hành động luôn hiển thị trước toàn bộ các thống kê còn lại.
   renderTable(P.lists.scale,"scale-table",{
     empty:"Chưa có mã phù hợp để tăng ngân sách theo điều kiện: đang chạy + bán tốt + tồn > 20.",
     showScore:true
@@ -1416,7 +1446,7 @@ function openDetail(code){
   const x=APP.processed.combined.items.find(i=>i.code===code);
   if(!x) return;
   document.getElementById("modal-title").textContent=x.code;
-  document.getElementById("modal-sub").textContent=x.name||"Chi tiết mã sản phẩm";
+  document.getElementById("modal-sub").textContent="Chi tiết mã sản phẩm";
 
   const ads=x.adNames.length?`<ul class="ad-list">${x.adNames.map(a=>`<li>${escapeHtml(a)}</li>`).join("")}</ul>`:`<div class="muted">Không có tên quảng cáo chứa mã này.</div>`;
   const evaluation = x.stockAlert
