@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Seven.AM — Product × Ads × Inventory Analyzer V2</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#f4f5f7;
+    --panel:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --brand:#7b1e2b;
+    --brand2:#9f3343;
+    --danger:#b42318;
+    --danger-bg:#fff1f0;
+    --warn:#b54708;
+    --warn-bg:#fff7ed;
+    --ok:#027a48;
+    --ok-bg:#ecfdf3;
+    --blue:#175cd3;
+    --blue-bg:#eff8ff;
+    --shadow:0 8px 24px rgba(17,24,39,.07);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    color:var(--text);
+    background:var(--bg);
+  }
+  .app{max-width:1680px;margin:0 auto;padding:20px}
+  .hero{
+    background:linear-gradient(135deg,#56131d 0%,#7b1e2b 55%,#a34a56 100%);
+    color:#fff;border-radius:22px;padding:24px 28px;box-shadow:var(--shadow);margin-bottom:18px
+  }
+  .hero h1{margin:0 0 6px;font-size:28px;letter-spacing:.2px}
+  .hero p{margin:0;color:rgba(255,255,255,.84);font-size:14px;line-height:1.6}
+  .hero .privacy{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+  .hero .privacy span{font-size:12px;padding:6px 10px;border:1px solid rgba(255,255,255,.25);border-radius:999px;background:rgba(255,255,255,.08)}
+  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .upload-card,.panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)
+  }
+  .upload-card{padding:12px 13px}
+  .upload-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+  .upload-title{font-weight:800;font-size:14px}
+  .pill{font-size:11px;padding:5px 8px;border-radius:999px;background:#f3f4f6;color:#4b5563;font-weight:700}
+  .drop{
+    border:1.5px dashed #c9ccd3;border-radius:10px;padding:9px 10px;text-align:center;background:#fafafa;
+    cursor:pointer;transition:.15s
+  }
+  .drop:hover{border-color:var(--brand);background:#fff8f9}
+  .drop input{display:none}
+  .file-meta{font-size:11px;color:var(--muted);line-height:1.45;margin-top:6px}
+  .select-row{display:grid;grid-template-columns:104px 1fr;gap:6px;align-items:center;margin-top:5px}
+  .select-row label{font-size:11px;color:var(--muted)}
+  select,input[type="number"],input[type="text"]{
+    width:100%;border:1px solid #d1d5db;border-radius:8px;padding:6px 8px;background:#fff;color:var(--text);font-size:12px
+  }
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+  button{
+    border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer;font-size:13px;
+    background:#e5e7eb;color:#111827
+  }
+  button.primary{background:var(--brand);color:#fff}
+  button.primary:hover{background:#651823}
+  button.secondary{background:#fff;border:1px solid var(--line)}
+  button.danger{background:#fff1f0;color:var(--danger);border:1px solid #fecdca}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .settings{display:none;padding:14px;margin:0 0 16px}
+  .settings.open{display:block}
+  .settings-grid{display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:10px}
+  .field label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:5px}
+  .panel{margin:16px 0;overflow:hidden}
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid var(--line);background:#fff
+  }
+  .panel-title{font-size:16px;font-weight:900}
+  .panel-sub{font-size:12px;color:var(--muted);margin-top:3px}
+  .panel-body{padding:14px 16px}
+  .kpis{display:grid;grid-template-columns:repeat(8,minmax(135px,1fr));gap:10px}
+  .kpi{
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 4px 14px rgba(17,24,39,.04)
+  }
+  .kpi .label{font-size:11px;color:var(--muted);font-weight:700;line-height:1.35}
+  .kpi .value{font-size:26px;font-weight:900;margin-top:5px}
+  .kpi .hint{font-size:11px;color:var(--muted);margin-top:3px}
+  .check-grid{display:grid;grid-template-columns:repeat(6,minmax(150px,1fr));gap:10px}
+  .check-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fafafa}
+  .check-card b{display:block;font-size:22px}
+  .check-card span{font-size:11px;color:var(--muted)}
+  .badge{
+    display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:900;white-space:nowrap
+  }
+  .badge.red{background:var(--danger-bg);color:var(--danger)}
+  .badge.orange{background:var(--warn-bg);color:var(--warn)}
+  .badge.green{background:var(--ok-bg);color:var(--ok)}
+  .badge.blue{background:var(--blue-bg);color:var(--blue)}
+  .badge.gray{background:#f2f4f7;color:#475467}
+  .table-wrap{overflow:auto;max-height:520px;border:1px solid var(--line);border-radius:12px}
+  table{width:100%;border-collapse:separate;border-spacing:0;min-width:1120px;font-size:12px}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--line);background:#fff;vertical-align:middle}
+  th{
+    position:sticky;top:0;z-index:2;background:#f8fafc;font-size:11px;text-transform:uppercase;letter-spacing:.3px;
+    color:#475467;text-align:left;white-space:nowrap;cursor:pointer
+  }
+  tr:hover td{background:#fafafa}
+  tr.row-danger td{background:#fff7f6}
+  tr.row-danger:hover td{background:#fff0ee}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .code-link{font-weight:900;color:var(--brand);cursor:pointer;text-decoration:none}
+  .code-link:hover{text-decoration:underline}
+  .muted{color:var(--muted)}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .toolbar input{width:220px}
+  .filterbar{display:flex;gap:8px;flex-wrap:wrap}
+  .filter-btn{padding:7px 9px;border:1px solid var(--line);background:#fff;font-size:11px}
+  .filter-btn.active{background:#2f3440;color:#fff;border-color:#2f3440}
+  .matrix{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .matrix-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+  .matrix-card h4{margin:0 0 6px;font-size:13px}
+  .matrix-card .count{font-size:26px;font-weight:900}
+  .matrix-card p{font-size:11px;color:var(--muted);line-height:1.5;margin:6px 0 0}
+  .scorebox{font-size:11px;color:#344054;line-height:1.5}
+  .empty{padding:24px;text-align:center;color:var(--muted);font-size:13px}
+  .footer-note{font-size:11px;color:var(--muted);line-height:1.6;margin:14px 0 30px}
+  .modal{
+    position:fixed;inset:0;background:rgba(17,24,39,.48);display:none;align-items:center;justify-content:center;padding:18px;z-index:50
+  }
+  .modal.open{display:flex}
+  .modal-card{width:min(860px,96vw);max-height:88vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 28px 80px rgba(0,0,0,.28)}
+  .modal-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .modal-body{padding:18px}
+  .modal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .mini{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fafafa}
+  .mini .l{font-size:10px;color:var(--muted);font-weight:700}
+  .mini .v{font-size:16px;font-weight:900;margin-top:3px}
+  .ad-list{margin:8px 0 0;padding-left:18px;font-size:12px;line-height:1.6}
+  .error-list{margin-top:12px;display:grid;gap:8px}
+  .error-item{padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:12px}
+  .note{font-size:11px;color:var(--muted);line-height:1.5}
+  @media(max-width:1200px){
+    .kpis{grid-template-columns:repeat(4,1fr)}
+    .settings-grid{grid-template-columns:repeat(4,1fr)}
+    .check-grid{grid-template-columns:repeat(3,1fr)}
+    .matrix{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(max-width:800px){
+    .app{padding:10px}
+    .grid3{grid-template-columns:1fr}
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .settings-grid{grid-template-columns:repeat(2,1fr)}
+    .check-grid{grid-template-columns:repeat(2,1fr)}
+    .matrix{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <h1>SEVEN.AM — PRODUCT × ADS × TỒN KHO · V2</h1>
+    <p>Phân tích đồng thời file Tồn kho, Quảng cáo và Đơn hàng để xác định mã bán chạy, cảnh báo tồn, mã chưa chạy Ads và ứng viên nên test/vít Ads.</p>
+    <div class="privacy">
+      <span>100% xử lý trên trình duyệt</span>
+      <span>Không upload dữ liệu lên server</span>
+      <span>Ưu tiên độ chính xác nhận mã</span>
+      <span>V3: Size theo đuôi 1–5</span>
+    </div>
+  </section>
+
+  <section class="grid3">
+    <div class="upload-card" id="card-inventory">
+      <div class="upload-head"><div class="upload-title">1. FILE TỒN KHO</div><span class="pill" id="status-inventory">Chưa tải</span></div>
+      <label class="drop">Chọn file Excel tồn kho<input type="file" id="file-inventory" accept=".xlsx,.xls,.csv"/></label>
+      <div class="file-meta" id="meta-inventory">Chưa có dữ liệu.</div>
+      <div id="mapping-inventory"></div>
+    </div>
+
+    <div class="upload-card" id="card-ads">
+      <div class="upload-head"><div class="upload-title">2. FILE QUẢNG CÁO</div><span class="pill" id="status-ads">Chưa tải</span></div>
+      <label class="drop">Chọn file Excel quảng cáo<input type="file" id="file-ads" accept=".xlsx,.xls,.csv"/></label>
+      <div class="file-meta" id="meta-ads">Chưa có dữ liệu.</div>
+      <div id="mapping-ads"></div>
+    </div>
+
+    <div class="upload-card" id="card-orders">
+      <div class="upload-head"><div class="upload-title">3. FILE ĐƠN HÀNG</div><span class="pill" id="status-orders">Chưa tải</span></div>
+      <label class="drop">Chọn file Excel đơn hàng<input type="file" id="file-orders" accept=".xlsx,.xls,.csv"/></label>
+      <div class="file-meta" id="meta-orders">Chưa có dữ liệu.</div>
+      <div id="mapping-orders"></div>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button class="primary" id="btn-analyze">Phân tích dữ liệu</button>
+    <button class="secondary" id="btn-settings">Cài đặt ngưỡng</button>
+    <button class="secondary" id="btn-export-all">Export toàn bộ phân tích</button>
+    <button class="danger" id="btn-reset">Xóa dữ liệu</button>
+  </div>
+
+  <section class="panel settings" id="settings-panel">
+    <div class="panel-head">
+      <div><div class="panel-title">Cài đặt</div><div class="panel-sub">Có thể chỉnh ngưỡng; giá trị mặc định bám yêu cầu vận hành.</div></div>
+    </div>
+    <div class="panel-body">
+      <div class="settings-grid">
+        <div class="field"><label>Giá tối thiểu (đ)</label><input type="number" id="set-min-price" value="600000" step="50000"></div>
+        <div class="field"><label>Tổng tồn cảnh báo</label><input type="number" id="set-stock-alert" value="10"></div>
+        <div class="field"><label>Tồn thấp / size</label><input type="number" id="set-low-size" value="3"></div>
+        <div class="field"><label>Số size tối thiểu</label><input type="number" id="set-min-sizes" value="3"></div>
+        <div class="field"><label>Top bán chạy</label><input type="number" id="set-top-n" value="20"></div>
+        <div class="field"><label>Ngưỡng bán tốt (0 = tự động)</label><input type="number" id="set-good-sales" value="0"></div>
+        <div class="field"><label>Tồn cao ma trận (0 = tự động)</label><input type="number" id="set-high-stock" value="0"></div>
+      </div>
+      <p class="note">V4: “bán tốt” vẫn dùng ngưỡng tự động P75 hoặc ngưỡng bạn tự chỉnh. Tăng ngân sách = đang chạy + bán tốt + tồn >20 và không thuộc nhóm sắp hết. Ads sắp hết = còn ≤2 size hoặc tổng tồn <5.</p>
+    </div>
+  </section>
+
+  <section id="dashboard-area" style="display:none">
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">🚀 1. MÃ CẦN TĂNG NGÂN SÁCH</div>
+          <div class="panel-sub">Đang chạy Ads + bán tốt + tổng tồn &gt; 20. Loại mã đang thuộc nhóm sắp hết để tránh tăng ngân sách vào mã chỉ còn quá ít size.</div>
+        </div>
+        <button class="secondary" data-export="scale">Export Excel</button>
+      </div>
+      <div class="panel-body" id="scale-table"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">🔥 2. MÃ BÁN TỐT NHƯNG CHƯA CHẠY ADS</div>
+          <div class="panel-sub">Mã đã bán tốt trong file đơn hàng, có trong tồn kho nhưng hiện chưa xuất hiện trong danh sách quảng cáo đang chạy.</div>
+        </div>
+        <button class="secondary" data-export="good-noads">Export Excel</button>
+      </div>
+      <div class="panel-body" id="good-noads-table"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">📦 3. MÃ TỒN NHIỀU NHƯNG CHƯA CHẠY ADS</div>
+          <div class="panel-sub">Chưa chạy Ads + tổng tồn &gt; 20; tiếp tục loại phụ kiện/túi và sản phẩm dưới ngưỡng giá tối thiểu.</div>
+        </div>
+        <button class="secondary" data-export="stock-noads">Export Excel</button>
+      </div>
+      <div class="panel-body" id="stock-noads-table"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">⚠ 4. MÃ ĐANG CHẠY ADS NHƯNG SẮP HẾT HÀNG</div>
+          <div class="panel-sub">Đang chạy Ads và chỉ còn ≤ 2 size HOẶC tổng tồn &lt; 5. Ưu tiên mã bán nhiều lên trước để xử lý ngân sách.</div>
+        </div>
+        <button class="secondary" data-export="ads-lowstock">Export Excel</button>
+      </div>
+      <div class="panel-body" id="ads-lowstock-table"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">TOÀN BỘ PHÂN TÍCH</div><div class="panel-sub">Bảng chi tiết đầy đủ sau 4 nhóm hành động ưu tiên. Có thể tìm kiếm, lọc nhanh và sort từng cột.</div></div>
+        <div class="toolbar">
+          <input id="search-code" type="text" placeholder="Tìm mã sản phẩm..."/>
+          <button class="secondary" data-export="all">Export Excel</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="filterbar" id="filterbar"></div>
+        <div style="height:10px"></div>
+        <div id="all-table"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="data-check-panel">
+      <div class="panel-head">
+        <div><div class="panel-title">DATA CHECK</div><div class="panel-sub">Kiểm tra lỗi nhận mã và độ khớp giữa 3 nguồn.</div></div>
+      </div>
+      <div class="panel-body" id="data-check-body"><div class="empty">Tải đủ dữ liệu và bấm “Phân tích dữ liệu”.</div></div>
+    </section>
+
+    <div class="kpis" id="kpi-grid"></div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">TOP MÃ BÁN CHẠY</div><div class="panel-sub">Xếp theo số lượng bán giảm dần; mã tồn nguy hiểm được tô đỏ.</div></div>
+        <button class="secondary" data-export="top">Export Excel</button>
+      </div>
+      <div class="panel-body" id="top-table"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">⚠ MÃ BÁN TỐT CẦN CẢNH BÁO ADS</div><div class="panel-sub">Có sức bán nhưng tổng tồn thấp hoặc độ phủ size dưới ngưỡng.</div></div>
+        <button class="secondary" data-export="risk">Export Excel</button>
+      </div>
+      <div class="panel-body" id="risk-table"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">🔥 GỢI Ý MÃ NÊN VÍT / TEST ADS</div><div class="panel-sub">Chỉ gợi ý mã có tổng tồn &gt; 20. Điểm tiềm năng 100 điểm: sức bán 35 + tồn 25 + phủ size 20 + cân bằng size 10 + doanh thu/giá trị 10.</div></div>
+        <button class="secondary" data-export="potential">Export Excel</button>
+      </div>
+      <div class="panel-body" id="potential-table"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">MÃ TỒN NHIỀU NHƯNG CHƯA CHẠY ADS</div><div class="panel-sub">Đã loại phụ kiện/túi, giá dưới ngưỡng; ưu tiên tồn cao và size phủ rộng.</div></div>
+        <button class="secondary" data-export="noads">Export Excel</button>
+      </div>
+      <div class="panel-body" id="noads-table"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">💎 MÃ TIỀM NĂNG CHƯA CHẠY</div><div class="panel-sub">Chưa chạy Ads nhưng đã có đơn tự nhiên, còn đủ tồn và độ phủ size.</div></div>
+        <button class="secondary" data-export="hidden">Export Excel</button>
+      </div>
+      <div class="panel-body" id="hidden-table"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">ĐANG CHẠY ADS NHƯNG ÍT / CHƯA CÓ ĐƠN</div><div class="panel-sub">Chỉ phản ánh số đơn trong file đơn hàng; không tự kết luận ROAS hoặc lỗ Ads.</div></div>
+        <button class="secondary" data-export="weakads">Export Excel</button>
+      </div>
+      <div class="panel-body" id="weakads-table"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">MA TRẬN BÁN HÀNG × TỒN KHO</div><div class="panel-sub" id="matrix-sub"></div></div>
+      </div>
+      <div class="panel-body"><div class="matrix" id="matrix-grid"></div></div>
+    </section>
+
+  </section>
+
+  <div class="footer-note">
+    Ghi chú kỹ thuật: file Excel chỉ được đọc trong bộ nhớ của trình duyệt. Thư viện SheetJS được tải từ CDN khi mở file HTML; dữ liệu Excel không được gửi tới CDN hay server ứng dụng.
+  </div>
+</div>
+
+<div class="modal" id="detail-modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div><div class="panel-title" id="modal-title">Chi tiết mã</div><div class="panel-sub" id="modal-sub"></div></div>
+      <button class="secondary" id="modal-close">Đóng</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   0. STATE + CONFIG
+========================================================= */
+const APP = {
+  files:{
+    inventory:null,
+    ads:null,
+    orders:null
+  },
+  processed:null,
+  sort:{key:"soldQty",dir:"desc"},
+  activeFilter:"all"
+};
+
+const SIZE_MAP = {"1":"S","2":"M","3":"L","4":"XL","5":"XXL"};
+const SIZE_KEYS = ["S","M","L","XL","XXL"];
+
+const FILE_CONFIG = {
+  inventory:{
+    label:"Tồn kho",
+    required:["sku","stock"],
+    fields:{
+      sku:["mã hàng","ma hang","sku","mã sku","ma sku","mã sản phẩm","ma san pham","product sku","item code","mã sp","ma sp"],
+      stock:["tổng tồn","tong ton","tồn thực tế","ton thuc te","tồn kho","ton kho","tồn","ton","available","stock","inventory","qty tồn","qty ton","số lượng tồn","so luong ton"],
+      name:["tên sản phẩm","ten san pham","tên hàng","ten hang","product name","name","sản phẩm","san pham"],
+      type:["loại sản phẩm","loai san pham","danh mục","danh muc","product type","category","nhóm hàng","nhom hang"],
+      price:["giá bán","gia ban","giá","gia","retail price","price","giá niêm yết","gia niem yet"]
+    }
+  },
+  ads:{
+    label:"Quảng cáo",
+    required:["adName"],
+    fields:{
+      adName:["ad name","tên quảng cáo","ten quang cao","advertisement name","tên ad","ten ad"],
+      status:["ad delivery","phân phối","phan phoi","delivery","status","trạng thái","trang thai"],
+      spend:["amount spent (vnd)","số tiền đã chi tiêu","so tien da chi tieu","amount spent","spend","chi tiêu","chi tieu"]
+    }
+  },
+  orders:{
+    label:"Đơn hàng",
+    required:["code"],
+    fields:{
+      code:["mã sản phẩm","ma san pham","sku","product sku","sản phẩm","san pham","mã sp","ma sp","product code","mã hàng","ma hang"],
+      qty:["số lượng","so luong","quantity","qty","sl"],
+      orderId:["order id","mã đơn","ma don","mã đơn hàng","ma don hang","đơn hàng","don hang","order code"],
+      revenue:["giá trị đơn hàng sau giảm giá","gia tri don hang sau giam gia","thành tiền","thanh tien","doanh thu","revenue","total","tổng tiền","tong tien","line total","giá trị","gia tri"]
+    }
+  }
+};
+
+function getSettings(){
+  return {
+    minPrice:Number(document.getElementById("set-min-price").value)||600000,
+    stockAlert:Number(document.getElementById("set-stock-alert").value)||10,
+    lowSize:Number(document.getElementById("set-low-size").value)||3,
+    minSizes:Number(document.getElementById("set-min-sizes").value)||3,
+    topN:Math.max(1,Number(document.getElementById("set-top-n").value)||20),
+    goodSales:Number(document.getElementById("set-good-sales").value)||0,
+    highStock:Number(document.getElementById("set-high-stock").value)||0
+  };
+}
+
+/* =========================================================
+   1. TEXT + CODE NORMALIZATION
+========================================================= */
+function stripDiacritics(s){
+  return String(s ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/đ/g,"d").replace(/Đ/g,"D");
+}
+
+function normalizeHeader(s){
+  return stripDiacritics(String(s ?? ""))
+    .toLowerCase()
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function normalizeProductCode(value){
+  const s = String(value ?? "").toUpperCase().trim().replace(/\s+/g,"");
+  if(!s) return null;
+  return /^(?:OA|OD|CV|[A-Z])\d{4,6}[A-Z]?$/.test(s) ? s : null;
+}
+
+function detectSize(sku){
+  const s = String(sku ?? "").toUpperCase().replace(/\s+/g,"").trim();
+  // V3: mã sản phẩm con dùng 1 ký tự cuối để biểu thị size:
+  // 1=S, 2=M, 3=L, 4=XL, 5=XXL.
+  const m = s.match(/([1-5])$/);
+  if(!m) return {size:null,sizeCode:null};
+  return {size:SIZE_MAP[m[1]],sizeCode:m[1]};
+}
+
+function getParentCode(sku){
+  const raw = String(sku ?? "").toUpperCase().replace(/\s+/g,"").trim();
+  if(!raw) return null;
+
+  const {sizeCode} = detectSize(raw);
+  let base = sizeCode ? raw.slice(0,-1) : raw;
+
+  // V3: mã cha = mã sản phẩm con sau khi bỏ đúng 1 ký tự size cuối.
+  // Ví dụ: B730358I2 -> B730358I (size M).
+  let direct = normalizeProductCode(base);
+  if(direct) return direct;
+
+  // Nếu không xác định được là mã con, thử giữ nguyên chuỗi như một mã cha chuẩn.
+  direct = normalizeProductCode(raw);
+  if(direct) return direct;
+
+  // Fallback: tìm mã chuẩn dài nhất từ đầu chuỗi để tránh bỏ sót SKU có ký tự phụ.
+  const candidates = [];
+  for(let len=Math.min(base.length,10); len>=5; len--){
+    const part = base.slice(0,len);
+    const normalized = normalizeProductCode(part);
+    if(normalized) candidates.push(normalized);
+  }
+  if(candidates.length) return candidates.sort((a,b)=>b.length-a.length)[0];
+
+  return null;
+}
+
+function parseSetCodes(text){
+  const source = String(text ?? "").toUpperCase();
+  // Tìm các mã chuẩn độc lập; hỗ trợ -, + hoặc khoảng trắng giữa các mã.
+  const tokens = source.match(/(?:OA|OD|CV|[A-Z])\d{4,6}[A-Z]?/g) || [];
+  const valid = [];
+  for(const t of tokens){
+    const n = normalizeProductCode(t);
+    if(n && !valid.includes(n)) valid.push(n);
+  }
+  return valid;
+}
+
+function extractProductCodes(text){
+  const source = String(text ?? "").toUpperCase();
+  const matches = source.match(/(?:OA|OD|CV|[A-Z])\d{4,6}[A-Z]?/g) || [];
+  const out = [];
+  for(const m of matches){
+    const n = normalizeProductCode(m);
+    if(n && !out.includes(n)) out.push(n);
+  }
+  return out;
+}
+
+/* =========================================================
+   2. NUMBER PARSING
+========================================================= */
+function parseVietnameseNumber(value){
+  if(value === null || value === undefined || value === "") return null;
+  if(typeof value === "number" && Number.isFinite(value)) return value;
+
+  let s = String(value).trim();
+  if(!s) return null;
+  s = s.replace(/[₫đĐvVnN\s]/g,"");
+
+  // Loại ký tự không phải số, dấu âm, chấm, phẩy.
+  s = s.replace(/[^\d.,-]/g,"");
+  if(!s) return null;
+
+  const dotCount=(s.match(/\./g)||[]).length;
+  const commaCount=(s.match(/,/g)||[]).length;
+
+  // Dạng tiền Việt: 1.599.000 / 1,599,000
+  if(dotCount>1 && commaCount===0) s=s.replace(/\./g,"");
+  else if(commaCount>1 && dotCount===0) s=s.replace(/,/g,"");
+  else if(dotCount>=1 && commaCount>=1){
+    const lastDot=s.lastIndexOf(".");
+    const lastComma=s.lastIndexOf(",");
+    const decimalSep=lastDot>lastComma?".":",";
+    const thousandSep=decimalSep==="."?",":".";
+    s=s.split(thousandSep).join("");
+    s=s.replace(decimalSep,".");
+  }else if(dotCount===1 && commaCount===0){
+    const [a,b]=s.split(".");
+    if(b && b.length===3) s=a+b;
+  }else if(commaCount===1 && dotCount===0){
+    const [a,b]=s.split(",");
+    if(b && b.length===3) s=a+b;
+    else s=a+"."+b;
+  }
+
+  const n=Number(s);
+  return Number.isFinite(n)?n:null;
+}
+
+function money(n){
+  if(n===null || n===undefined || !Number.isFinite(Number(n))) return "—";
+  return new Intl.NumberFormat("vi-VN",{maximumFractionDigits:0}).format(Number(n))+"đ";
+}
+function num(n, digits=0){
+  if(n===null || n===undefined || !Number.isFinite(Number(n))) return "—";
+  return new Intl.NumberFormat("vi-VN",{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(Number(n));
+}
+
+/* =========================================================
+   3. EXCEL READING + COLUMN DETECTION
+========================================================= */
+async function readWorkbookFile(file){
+  if(typeof XLSX==="undefined"){
+    throw new Error("Không tải được thư viện SheetJS. Hãy kiểm tra kết nối Internet rồi mở lại file HTML.");
+  }
+  const ab = await file.arrayBuffer();
+  const wb = XLSX.read(ab,{type:"array",cellDates:false,raw:true});
+  if(!wb.SheetNames.length) throw new Error("File không có sheet.");
+
+  let bestName=wb.SheetNames[0], bestRows=[];
+  for(const name of wb.SheetNames){
+    const ws=wb.Sheets[name];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:"",raw:true});
+    if(rows.length>bestRows.length){
+      bestRows=rows; bestName=name;
+    }
+  }
+  return {workbook:wb,sheetName:bestName,rows:bestRows,headers:bestRows.length?Object.keys(bestRows[0]):[]};
+}
+
+function detectColumns(headers, fileType){
+  const cfg=FILE_CONFIG[fileType];
+  const normalized=headers.map(h=>({raw:h,norm:normalizeHeader(h)}));
+  const mapping={};
+
+  for(const [field,aliases] of Object.entries(cfg.fields)){
+    let best=null,score=-1;
+    const aliasNorms=aliases.map(normalizeHeader);
+
+    for(const h of normalized){
+      for(const a of aliasNorms){
+        let s=0;
+        if(h.norm===a) s=100;
+        else if(h.norm.includes(a) || a.includes(h.norm)) s=50;
+        if(s>score){score=s;best=h.raw;}
+      }
+    }
+    mapping[field]=score>0?best:"";
+  }
+
+  // Ưu tiên đúng bộ cột đang dùng trong file Seven.AM như giao diện mẫu.
+  const preferred = {
+    inventory:{sku:"Mã sản phẩm",stock:"Tổng tồn",name:"Tên sản phẩm",type:"",price:"Giá"},
+    ads:{adName:"Ad name",status:"Ad delivery",spend:"Amount spent (VND)"},
+    orders:{code:"Mã sản phẩm",qty:"Số lượng",orderId:"Mã đơn hàng",revenue:"Giá trị đơn hàng sau giảm giá"}
+  };
+  const p=preferred[fileType]||{};
+  for(const [field,wanted] of Object.entries(p)){
+    if(wanted===""){ mapping[field]=""; continue; }
+    const exact=normalized.find(h=>h.norm===normalizeHeader(wanted));
+    if(exact) mapping[field]=exact.raw;
+  }
+  return mapping;
+}
+
+function requiredMappingOK(fileType,mapping){
+  return FILE_CONFIG[fileType].required.every(f=>mapping[f]);
+}
+
+function loadSelectedSheet(fileType){
+  const f=APP.files[fileType];
+  if(!f) return;
+  const select=document.getElementById(`sheet-${fileType}`);
+  const sheetName=select?.value || f.sheetName;
+  const ws=f.workbook.Sheets[sheetName];
+  const rows=XLSX.utils.sheet_to_json(ws,{defval:"",raw:true});
+  f.sheetName=sheetName;
+  f.rows=rows;
+  f.headers=rows.length?Object.keys(rows[0]):[];
+  f.mapping=detectColumns(f.headers,fileType);
+  renderFileMapping(fileType);
+}
+
+function renderFileMapping(fileType){
+  const f=APP.files[fileType];
+  const meta=document.getElementById(`meta-${fileType}`);
+  const box=document.getElementById(`mapping-${fileType}`);
+  const status=document.getElementById(`status-${fileType}`);
+  if(!f){
+    meta.textContent="Chưa có dữ liệu."; box.innerHTML=""; status.textContent="Chưa tải"; return;
+  }
+
+  status.textContent=`${f.rows.length} dòng`;
+  const sheets=f.workbook.SheetNames;
+  meta.innerHTML=`<b>${escapeHtml(f.fileName)}</b><br>${num(f.rows.length)} dòng · Sheet: <b>${escapeHtml(f.sheetName)}</b>`;
+
+  const cfg=FILE_CONFIG[fileType];
+  let html=`<div class="select-row"><label>Sheet sử dụng</label><select id="sheet-${fileType}">`;
+  for(const s of sheets) html+=`<option ${s===f.sheetName?"selected":""}>${escapeHtml(s)}</option>`;
+  html+=`</select></div>`;
+
+  for(const field of Object.keys(cfg.fields)){
+    const required=cfg.required.includes(field);
+    const label=fieldLabel(fileType,field)+(required?" *":"");
+    html+=`<div class="select-row"><label>${escapeHtml(label)}</label><select data-map-file="${fileType}" data-map-field="${field}">`;
+    html+=`<option value="">— Không dùng —</option>`;
+    for(const h of f.headers){
+      html+=`<option value="${escapeAttr(h)}" ${f.mapping[field]===h?"selected":""}>${escapeHtml(h)}</option>`;
+    }
+    html+=`</select></div>`;
+  }
+  box.innerHTML=html;
+
+  document.getElementById(`sheet-${fileType}`).addEventListener("change",()=>loadSelectedSheet(fileType));
+  box.querySelectorAll("select[data-map-field]").forEach(sel=>{
+    sel.addEventListener("change",()=>{
+      APP.files[fileType].mapping[sel.dataset.mapField]=sel.value;
+    });
+  });
+}
+
+function fieldLabel(fileType,field){
+  const labels={
+    inventory:{sku:"SKU / Mã hàng",stock:"Tồn",name:"Tên SP",type:"Loại / Danh mục",price:"Giá bán"},
+    ads:{adName:"Tên quảng cáo",status:"Trạng thái",spend:"Chi tiêu"},
+    orders:{code:"Mã SP / SKU",qty:"Số lượng",orderId:"Mã đơn",revenue:"Doanh thu"}
+  };
+  return labels[fileType][field]||field;
+}
+
+/* =========================================================
+   4. INVENTORY PROCESSING
+========================================================= */
+function emptyStock(){
+  return {S:0,M:0,L:0,XL:0,XXL:0};
+}
+
+function processInventory(fileData){
+  const map=fileData.mapping;
+  const products=new Map();
+  const invalidSkus=[];
+  const unknownSizes=[];
+  const missingPrices=[];
+
+  for(let i=0;i<fileData.rows.length;i++){
+    const row=fileData.rows[i];
+    const rawSku=row[map.sku];
+    if(rawSku===null || rawSku===undefined || String(rawSku).trim()==="") continue;
+
+    const parent=getParentCode(rawSku);
+    const ds=detectSize(rawSku);
+    if(!parent){
+      invalidSkus.push({row:i+2,value:String(rawSku)});
+      continue;
+    }
+    if(!ds.size) unknownSizes.push({row:i+2,value:String(rawSku),parent});
+
+    const stock=Math.max(0,parseVietnameseNumber(row[map.stock]) ?? 0);
+    const price=map.price?parseVietnameseNumber(row[map.price]):null;
+    const name=map.name?String(row[map.name]??"").trim():"";
+    const type=map.type?String(row[map.type]??"").trim():"";
+
+    if(!products.has(parent)){
+      products.set(parent,{
+        code:parent,name:"",type:"",price:null,
+        stockBySize:emptyStock(),unassignedStock:0,totalStock:0,
+        inventoryRows:0
+      });
+    }
+    const p=products.get(parent);
+    p.inventoryRows++;
+    if(name && (!p.name || name.length>p.name.length)) p.name=name;
+    if(type && (!p.type || type.length>p.type.length)) p.type=type;
+    if(price!==null && (p.price===null || price>0)) p.price=price;
+
+    if(ds.size) p.stockBySize[ds.size]+=stock;
+    else p.unassignedStock+=stock;
+  }
+
+  for(const p of products.values()){
+    p.totalStock=SIZE_KEYS.reduce((sum,s)=>sum+p.stockBySize[s],0)+p.unassignedStock;
+    if(p.price===null) missingPrices.push(p.code);
+  }
+
+  return {products,invalidSkus,unknownSizes,missingPrices};
+}
+
+/* =========================================================
+   5. ADS PROCESSING
+========================================================= */
+function processAds(fileData){
+  const map=fileData.mapping;
+  const codes=new Set();
+  const adsByCode=new Map();
+  const invalidAdNames=[];
+  const adNames=[];
+
+  for(let i=0;i<fileData.rows.length;i++){
+    const row=fileData.rows[i];
+    const adName=String(row[map.adName]??"").trim();
+    if(!adName) continue;
+    adNames.push(adName);
+
+    const extracted=extractProductCodes(adName);
+    if(!extracted.length){
+      invalidAdNames.push({row:i+2,value:adName});
+      continue;
+    }
+    for(const code of extracted){
+      codes.add(code);
+      if(!adsByCode.has(code)) adsByCode.set(code,[]);
+      if(!adsByCode.get(code).includes(adName)) adsByCode.get(code).push(adName);
+    }
+  }
+
+  return {codes,adsByCode,invalidAdNames,adNames};
+}
+
+/* =========================================================
+   6. ORDER PROCESSING
+========================================================= */
+function processOrders(fileData){
+  const map=fileData.mapping;
+  const stats=new Map();
+  const invalidCodes=[];
+  const seenRows=new Set();
+  const duplicatedRows=[];
+  const uniqueOrdersByCode=new Map();
+
+  for(let i=0;i<fileData.rows.length;i++){
+    const row=fileData.rows[i];
+    const rawCode=String(row[map.code]??"").trim();
+    if(!rawCode) continue;
+
+    let codes=extractProductCodes(rawCode);
+
+    // Nếu ô là SKU chi tiết theo size, thử đưa về mã cha.
+    if(!codes.length){
+      const parent=getParentCode(rawCode);
+      if(parent) codes=[parent];
+    }
+    if(!codes.length){
+      invalidCodes.push({row:i+2,value:rawCode});
+      continue;
+    }
+
+    const qtyRaw=map.qty?parseVietnameseNumber(row[map.qty]):null;
+    const qty=(qtyRaw!==null && qtyRaw>0)?qtyRaw:1;
+    const revenueRaw=map.revenue?parseVietnameseNumber(row[map.revenue]):null;
+    const orderId=map.orderId?String(row[map.orderId]??"").trim():"";
+    const rowKey=[orderId,rawCode,qty,revenueRaw??""].join("|");
+
+    if(seenRows.has(rowKey)){
+      duplicatedRows.push({row:i+2,value:rowKey});
+      continue;
+    }
+    seenRows.add(rowKey);
+
+    // Nếu 1 dòng chứa SET, mỗi mã thành phần nhận đủ qty; doanh thu chia đều để không nhân đôi tổng doanh thu.
+    const revenuePerCode=(revenueRaw!==null && codes.length)?revenueRaw/codes.length:null;
+
+    for(const code of codes){
+      if(!stats.has(code)) stats.set(code,{code,soldQty:0,orderCount:0,revenue:0,hasRevenue:false});
+      const s=stats.get(code);
+      s.soldQty+=qty;
+      if(revenuePerCode!==null){s.revenue+=revenuePerCode;s.hasRevenue=true;}
+
+      if(!uniqueOrdersByCode.has(code)) uniqueOrdersByCode.set(code,new Set());
+      const uniqueOrderKey=orderId || `ROW_${i+2}`;
+      uniqueOrdersByCode.get(code).add(uniqueOrderKey);
+    }
+  }
+
+  for(const [code,s] of stats){
+    s.orderCount=uniqueOrdersByCode.get(code)?.size || 0;
+    s.avgPrice=(s.hasRevenue && s.soldQty>0)?s.revenue/s.soldQty:null;
+  }
+
+  return {stats,invalidCodes,duplicatedRows};
+}
+
+/* =========================================================
+   7. STOCK STATUS + COVERAGE + POTENTIAL
+========================================================= */
+function calculateSizeCoverage(stockBySize){
+  const count=SIZE_KEYS.filter(s=>(stockBySize[s]||0)>0).length;
+  return {count,label:`${count}/5 size`,ratio:count/5};
+}
+
+function calculateSizeBalance(stockBySize){
+  const vals=SIZE_KEYS.map(s=>Math.max(0,Number(stockBySize[s]||0)));
+  const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+  if(avg<=0) return 0;
+  const mad=vals.reduce((sum,v)=>sum+Math.abs(v-avg),0)/vals.length;
+  return Math.max(0,Math.min(1,1-(mad/(avg*2))));
+}
+
+function calculateStockStatus(product,settings){
+  const coverage=calculateSizeCoverage(product.stockBySize);
+  const alert=product.totalStock<settings.stockAlert || coverage.count<settings.minSizes;
+  const anyOut=SIZE_KEYS.some(s=>(product.stockBySize[s]||0)<=0);
+  let label="ĐỦ HÀNG",cls="green";
+  if(alert){label="SẮP HẾT";cls="red";}
+  else if(anyOut){label="HẾT SIZE";cls="orange";}
+  return {label,cls,alert,coverage};
+}
+
+function percentile(values,p){
+  const arr=values.filter(v=>Number.isFinite(v)).sort((a,b)=>a-b);
+  if(!arr.length) return 0;
+  const idx=(arr.length-1)*p;
+  const lo=Math.floor(idx),hi=Math.ceil(idx);
+  if(lo===hi) return arr[lo];
+  return arr[lo]+(arr[hi]-arr[lo])*(idx-lo);
+}
+
+function normToMax(v,max,cap=1){
+  if(!max || max<=0) return 0;
+  return Math.max(0,Math.min(cap,v/max));
+}
+
+function calculateAdsPotential(item,context){
+  const {maxSold,maxStock,maxRevenue,maxPrice,settings}=context;
+  const stockStatus=calculateStockStatus(item,settings);
+  const coverage=calculateSizeCoverage(item.stockBySize);
+  const balance=calculateSizeBalance(item.stockBySize);
+
+  const saleScore=35*normToMax(item.soldQty,maxSold);
+  const stockScore=25*normToMax(item.totalStock,maxStock);
+  const coverageScore=20*coverage.ratio;
+  const balanceScore=10*balance;
+  const valueBase=item.hasRevenue?item.revenue:(item.price||0);
+  const valueMax=item.hasRevenue?maxRevenue:maxPrice;
+  const valueScore=10*normToMax(valueBase,valueMax);
+  let score=saleScore+stockScore+coverageScore+balanceScore+valueScore;
+
+  let group;
+  if(stockStatus.alert){
+    group="🔴 KHÔNG NÊN VÍT – TỒN THẤP";
+  }else if(score>=72 && coverage.count>=settings.minSizes){
+    group="🔥 ƯU TIÊN VÍT";
+  }else if(score>=52){
+    group="🟢 CÓ THỂ TEST ADS";
+  }else{
+    group="🟡 THEO DÕI";
+  }
+
+  return {
+    score:Math.round(score*10)/10,
+    saleScore,stockScore,coverageScore,balanceScore,valueScore,
+    group,balance
+  };
+}
+
+/* =========================================================
+   8. COMBINE THREE SOURCES
+========================================================= */
+function isAccessory(product){
+  const s=stripDiacritics(`${product.name||""} ${product.type||""}`).toLowerCase();
+  const words=["phu kien","tui","bag","vi ","vi da","that lung","khan","mu ","non ","trang suc","accessory"];
+  return words.some(w=>s.includes(w));
+}
+
+function combineData(inv,ads,orders,settings){
+  const allCodes=new Set([
+    ...inv.products.keys(),
+    ...ads.codes,
+    ...orders.stats.keys()
+  ]);
+
+  const items=[];
+  for(const code of allCodes){
+    const p=inv.products.get(code) || {
+      code,name:"",type:"",price:null,stockBySize:emptyStock(),unassignedStock:0,totalStock:0,inventoryRows:0
+    };
+    const o=orders.stats.get(code) || {code,soldQty:0,orderCount:0,revenue:0,hasRevenue:false,avgPrice:null};
+    const inAds=ads.codes.has(code);
+    const stockStatus=calculateStockStatus(p,settings);
+    items.push({
+      code,
+      name:p.name||"",
+      type:p.type||"",
+      price:p.price,
+      stockBySize:{...p.stockBySize},
+      unassignedStock:p.unassignedStock||0,
+      totalStock:p.totalStock||0,
+      sizeCoverage:stockStatus.coverage.count,
+      stockStatus:stockStatus.label,
+      stockClass:stockStatus.cls,
+      stockAlert:stockStatus.alert,
+      soldQty:o.soldQty||0,
+      orderCount:o.orderCount||0,
+      revenue:o.revenue||0,
+      hasRevenue:o.hasRevenue||false,
+      avgPrice:o.avgPrice,
+      inAds,
+      adNames:ads.adsByCode.get(code)||[],
+      inInventory:inv.products.has(code),
+      isAccessory:isAccessory(p)
+    });
+  }
+
+  const maxSold=Math.max(0,...items.map(x=>x.soldQty));
+  const maxStock=Math.max(0,...items.map(x=>x.totalStock));
+  const maxRevenue=Math.max(0,...items.map(x=>x.revenue));
+  const maxPrice=Math.max(0,...items.map(x=>x.price||0));
+  const context={maxSold,maxStock,maxRevenue,maxPrice,settings};
+
+  for(const item of items){
+    item.potential=calculateAdsPotential(item,context);
+  }
+
+  const positiveSales=items.map(x=>x.soldQty).filter(v=>v>0);
+  const positiveStocks=items.map(x=>x.totalStock).filter(v=>v>0);
+  const goodSalesThreshold=settings.goodSales>0?settings.goodSales:Math.max(1,Math.ceil(percentile(positiveSales,.75)));
+  const highStockThreshold=settings.highStock>0?settings.highStock:Math.max(settings.stockAlert,Math.ceil(percentile(positiveStocks,.75)));
+
+  for(const item of items){
+    item.goodSelling=item.soldQty>=goodSalesThreshold;
+    item.highStock=item.totalStock>=highStockThreshold;
+    item.matrix=
+      item.goodSelling && item.highStock ? "good_high" :
+      item.goodSelling && !item.highStock ? "good_low" :
+      !item.goodSelling && item.highStock ? "slow_high" :
+      "slow_low";
+  }
+
+  return {items,goodSalesThreshold,highStockThreshold};
+}
+
+/* =========================================================
+   9. DATA CHECK
+========================================================= */
+function buildDataCheck(inv,ads,orders,combined){
+  const orderCodes=[...orders.stats.keys()];
+  const adsCodes=[...ads.codes];
+
+  const orderMissingInv=orderCodes.filter(c=>!inv.products.has(c));
+  const adsMissingInv=adsCodes.filter(c=>!inv.products.has(c));
+
+  return {
+    validInventoryCodes:inv.products.size,
+    invalidInventorySkus:inv.invalidSkus,
+    unknownSizes:inv.unknownSizes,
+    missingPrices:inv.missingPrices,
+    validAdsCodes:ads.codes.size,
+    invalidAdNames:ads.invalidAdNames,
+    validOrderCodes:orders.stats.size,
+    invalidOrderCodes:orders.invalidCodes,
+    duplicatedOrderRows:orders.duplicatedRows,
+    orderMissingInv,
+    adsMissingInv,
+    combinedCount:combined.items.length
+  };
+}
+
+/* =========================================================
+   10. RENDER HELPERS
+========================================================= */
+function escapeHtml(s){
+  return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+function escapeAttr(s){return escapeHtml(s).replace(/`/g,"&#096;");}
+
+function badge(text,cls){return `<span class="badge ${cls}">${escapeHtml(text)}</span>`;}
+
+function sizeCell(item,size,settings){
+  const v=item.stockBySize[size]||0;
+  let cls="";
+  if(v<=0) cls="red";
+  else if(v<settings.lowSize) cls="orange";
+  else cls="green";
+  return `<span class="badge ${cls}">${size}: ${num(v)}</span>`;
+}
+
+function rowToExport(item){
+  return {
+    "Mã sản phẩm":item.code,
+    "Tên sản phẩm":item.name,
+    "Giá bán":item.price??"",
+    "SL bán":item.soldQty,
+    "Số đơn":item.orderCount,
+    "Doanh thu":item.hasRevenue?Math.round(item.revenue):"",
+    "Giá bán TB":item.avgPrice?Math.round(item.avgPrice):"",
+    "Tổng tồn":item.totalStock,
+    "S":item.stockBySize.S,
+    "M":item.stockBySize.M,
+    "L":item.stockBySize.L,
+    "XL":item.stockBySize.XL,
+    "XXL":item.stockBySize.XXL,
+    "Số size còn":item.sizeCoverage,
+    "Trạng thái tồn":item.stockStatus,
+    "Đang chạy Ads":item.inAds?"Có":"Không",
+    "Điểm Ads":item.potential.score,
+    "Nhóm gợi ý":item.potential.group
+  };
+}
+
+function renderTable(items,targetId,opts={}){
+  const target=document.getElementById(targetId);
+  if(!items.length){target.innerHTML=`<div class="empty">${opts.empty||"Không có dữ liệu phù hợp."}</div>`;return;}
+  const settings=getSettings();
+  const showScore=opts.showScore!==false;
+  const showName=opts.showName!==false;
+
+  let html=`<div class="table-wrap"><table><thead><tr>
+    <th>STT</th><th>Mã</th>${showName?"<th>Tên sản phẩm</th>":""}
+    <th>SL bán</th><th>Số đơn</th><th>Doanh thu</th><th>Tổng tồn</th>
+    <th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th>
+    <th>Phủ size</th><th>Tồn</th><th>Ads</th>${showScore?"<th>Điểm / Gợi ý</th>":""}
+  </tr></thead><tbody>`;
+
+  items.forEach((item,idx)=>{
+    html+=`<tr class="${item.stockAlert?"row-danger":""}">
+      <td>${idx+1}</td>
+      <td><a class="code-link" data-code="${escapeAttr(item.code)}">${escapeHtml(item.code)}</a></td>
+      ${showName?`<td>${escapeHtml(item.name||"—")}</td>`:""}
+      <td class="num">${num(item.soldQty)}</td>
+      <td class="num">${num(item.orderCount)}</td>
+      <td class="num">${item.hasRevenue?money(item.revenue):"—"}</td>
+      <td class="num"><b>${num(item.totalStock)}</b></td>
+      <td>${sizeCell(item,"S",settings)}</td>
+      <td>${sizeCell(item,"M",settings)}</td>
+      <td>${sizeCell(item,"L",settings)}</td>
+      <td>${sizeCell(item,"XL",settings)}</td>
+      <td>${sizeCell(item,"XXL",settings)}</td>
+      <td>${badge(`${item.sizeCoverage}/5`,"blue")}</td>
+      <td>${badge(item.stockStatus,item.stockClass)}</td>
+      <td>${item.inAds?badge("ĐANG CHẠY","blue"):badge("CHƯA CHẠY","gray")}</td>
+      ${showScore?`<td><div class="scorebox"><b>${num(item.potential.score,1)}/100</b><br>${escapeHtml(item.potential.group)}</div></td>`:""}
+    </tr>`;
+  });
+  html+="</tbody></table></div>";
+  target.innerHTML=html;
+  bindCodeLinks(target);
+}
+
+function bindCodeLinks(root){
+  root.querySelectorAll(".code-link").forEach(el=>{
+    el.addEventListener("click",()=>openDetail(el.dataset.code));
+  });
+}
+
+/* =========================================================
+   11. MAIN DASHBOARD RENDER
+========================================================= */
+function renderDataCheck(check){
+  const target=document.getElementById("data-check-body");
+  const cards=[
+    ["Mã tồn hợp lệ",check.validInventoryCodes],
+    ["Mã Ads hợp lệ",check.validAdsCodes],
+    ["Mã đã bán",check.validOrderCodes],
+    ["SKU tồn lỗi",check.invalidInventorySkus.length],
+    ["SKU không rõ size",check.unknownSizes.length],
+    ["SP thiếu giá",check.missingPrices.length],
+    ["Mã đơn không có trong tồn",check.orderMissingInv.length],
+    ["Mã Ads không có trong tồn",check.adsMissingInv.length],
+    ["Tên Ads không nhận mã",check.invalidAdNames.length],
+    ["Mã đơn không nhận diện",check.invalidOrderCodes.length],
+    ["Dòng đơn trùng đã bỏ",check.duplicatedOrderRows.length],
+    ["Tổng mã hợp nhất",check.combinedCount]
+  ];
+
+  let html=`<div class="check-grid">`;
+  for(const [label,value] of cards){
+    html+=`<div class="check-card"><b>${num(value)}</b><span>${escapeHtml(label)}</span></div>`;
+  }
+  html+=`</div>`;
+
+  const errors=[];
+  if(check.invalidInventorySkus.length) errors.push(["SKU tồn không hợp lệ",check.invalidInventorySkus.slice(0,30).map(x=>`Dòng ${x.row}: ${x.value}`)]);
+  if(check.unknownSizes.length) errors.push(["SKU không xác định size",check.unknownSizes.slice(0,30).map(x=>`Dòng ${x.row}: ${x.value}`)]);
+  if(check.orderMissingInv.length) errors.push(["Mã trong đơn nhưng không có trong tồn",check.orderMissingInv.slice(0,50)]);
+  if(check.adsMissingInv.length) errors.push(["Mã trong Ads nhưng không có trong tồn",check.adsMissingInv.slice(0,50)]);
+  if(check.invalidAdNames.length) errors.push(["Tên Ads không nhận được mã",check.invalidAdNames.slice(0,20).map(x=>`Dòng ${x.row}: ${x.value}`)]);
+  if(check.invalidOrderCodes.length) errors.push(["Ô mã đơn không nhận diện",check.invalidOrderCodes.slice(0,20).map(x=>`Dòng ${x.row}: ${x.value}`)]);
+
+  if(errors.length){
+    html+=`<div class="error-list">`;
+    for(const [title,list] of errors){
+      html+=`<details class="error-item"><summary><b>${escapeHtml(title)}</b> (${num(list.length)} hiển thị)</summary>
+      <div style="margin-top:8px;line-height:1.7">${list.map(x=>escapeHtml(x)).join("<br>")}</div></details>`;
+    }
+    html+=`</div>`;
+  }
+  target.innerHTML=html;
+}
+
+function renderKpis(items,lists){
+  const totalInv=items.filter(x=>x.inInventory).length;
+  const totalAds=items.filter(x=>x.inAds).length;
+  const totalSold=items.filter(x=>x.soldQty>0).length;
+  const kpis=[
+    ["Cần tăng ngân sách",lists.scale.length,"Đang chạy + bán tốt + tồn >20"],
+    ["Bán tốt chưa chạy",lists.goodNoAds.length,"Ứng viên mở Ads"],
+    ["Tồn >20 chưa chạy",lists.stockNoAds.length,"Sau lọc giá/phụ kiện"],
+    ["Ads sắp hết",lists.adsLowStock.length,"≤2 size hoặc tồn <5"],
+    ["Tổng mã tồn kho",totalInv,"Mã có trong file tồn"],
+    ["Mã đang chạy Ads",totalAds,"Đã loại trùng mã"],
+    ["Mã đã phát sinh đơn",totalSold,"Theo file đơn hàng"],
+    ["Đang chạy chưa có đơn",lists.weakads.filter(x=>x.soldQty===0).length,"Không suy luận ROAS"]
+  ];
+  document.getElementById("kpi-grid").innerHTML=kpis.map(k=>`<div class="kpi"><div class="label">${escapeHtml(k[0])}</div><div class="value">${num(k[1])}</div><div class="hint">${escapeHtml(k[2])}</div></div>`).join("");
+}
+
+function buildLists(combined,settings){
+  const items=combined.items;
+
+  // V4: nhóm "sắp hết" riêng cho các mã ĐANG CHẠY ADS.
+  // Điều kiện theo yêu cầu: chỉ còn <= 2 size HOẶC tổng tồn < 5.
+  const adsLowStock=[...items]
+    .filter(x=>x.inAds && x.inInventory && (x.sizeCoverage<=2 || x.totalStock<5))
+    .sort((a,b)=>b.soldQty-a.soldQty || a.totalStock-b.totalStock);
+
+  const lowStockCodes=new Set(adsLowStock.map(x=>x.code));
+
+  // 1) Cần tăng ngân sách:
+  // - đang chạy Ads
+  // - bán tốt
+  // - tổng tồn > 20
+  // - không nằm trong cảnh báo sắp hết ở trên để tránh xung đột hành động.
+  const scale=[...items]
+    .filter(x=>
+      x.inAds &&
+      x.inInventory &&
+      x.goodSelling &&
+      x.totalStock>20 &&
+      !lowStockCodes.has(x.code)
+    )
+    .sort((a,b)=>b.soldQty-a.soldQty || b.revenue-a.revenue || b.totalStock-a.totalStock);
+
+  // 2) Bán tốt nhưng chưa chạy:
+  const goodNoAds=[...items]
+    .filter(x=>x.inInventory && !x.inAds && x.goodSelling)
+    .sort((a,b)=>b.soldQty-a.soldQty || b.revenue-a.revenue || b.totalStock-a.totalStock);
+
+  // 3) Tồn nhiều nhưng chưa chạy:
+  // vẫn giữ nguyên nguyên tắc cũ: loại phụ kiện/túi và giá dưới ngưỡng.
+  const stockNoAds=[...items]
+    .filter(x=>
+      x.inInventory &&
+      !x.inAds &&
+      x.totalStock>20 &&
+      !x.isAccessory &&
+      (x.price??0)>=settings.minPrice
+    )
+    .sort((a,b)=>b.totalStock-a.totalStock || b.sizeCoverage-a.sizeCoverage || b.soldQty-a.soldQty);
+
+  const top=[...items]
+    .filter(x=>x.soldQty>0)
+    .sort((a,b)=>b.soldQty-a.soldQty || b.revenue-a.revenue)
+    .slice(0,settings.topN);
+
+  const risk=[...items]
+    .filter(x=>x.soldQty>0 && x.stockAlert)
+    .sort((a,b)=>b.soldQty-a.soldQty || a.totalStock-b.totalStock);
+
+  const noads=[...items]
+    .filter(x=>x.inInventory && !x.inAds && !x.isAccessory && (x.price??0)>=settings.minPrice)
+    .sort((a,b)=>b.totalStock-a.totalStock || b.sizeCoverage-a.sizeCoverage || b.potential.balance-a.potential.balance);
+
+  const potential=[...items]
+    .filter(x=>x.inInventory && x.totalStock>20 && !x.stockAlert && !x.isAccessory && (x.price??0)>=settings.minPrice)
+    .sort((a,b)=>b.potential.score-a.potential.score)
+    .slice(0,Math.max(30,settings.topN));
+
+  const hidden=[...items]
+    .filter(x=>x.inInventory && !x.inAds && x.soldQty>0 && x.totalStock>=settings.stockAlert && x.sizeCoverage>=settings.minSizes && !x.isAccessory && (x.price??0)>=settings.minPrice)
+    .sort((a,b)=>b.potential.score-a.potential.score);
+
+  const weakads=[...items]
+    .filter(x=>x.inAds && x.inInventory && x.totalStock>=settings.stockAlert && x.soldQty<combined.goodSalesThreshold)
+    .sort((a,b)=>a.soldQty-b.soldQty || b.totalStock-a.totalStock);
+
+  return {scale,goodNoAds,stockNoAds,adsLowStock,top,risk,noads,potential,hidden,weakads};
+}
+
+function renderMatrix(combined){
+  const groups={
+    good_high:{title:"1. BÁN TỐT + TỒN CAO",desc:"Ứng viên tiếp tục đẩy quảng cáo.",items:[]},
+    good_low:{title:"2. BÁN TỐT + TỒN THẤP",desc:"Cần cảnh báo / giảm áp lực Ads.",items:[]},
+    slow_high:{title:"3. BÁN CHẬM + TỒN CAO",desc:"Nên test content / test Ads mới.",items:[]},
+    slow_low:{title:"4. BÁN CHẬM + TỒN THẤP",desc:"Ưu tiên thấp.",items:[]}
+  };
+  combined.items.forEach(x=>groups[x.matrix].items.push(x));
+  document.getElementById("matrix-sub").textContent=`Ngưỡng bán tốt: ≥ ${combined.goodSalesThreshold} SP · Tồn cao: ≥ ${combined.highStockThreshold} SP`;
+  document.getElementById("matrix-grid").innerHTML=Object.values(groups).map(g=>`
+    <div class="matrix-card">
+      <h4>${escapeHtml(g.title)}</h4>
+      <div class="count">${num(g.items.length)}</div>
+      <p>${escapeHtml(g.desc)}</p>
+      <p>${g.items.slice(0,6).map(x=>`<a class="code-link" data-code="${escapeAttr(x.code)}">${escapeHtml(x.code)}</a>`).join(" · ") || "Không có mã"}</p>
+    </div>`).join("");
+  bindCodeLinks(document.getElementById("matrix-grid"));
+}
+
+function renderFilters(){
+  const filters=[
+    ["all","Tất cả"],
+    ["scale","Cần tăng ngân sách"],
+    ["goodnoads","Bán tốt chưa chạy"],
+    ["stocknoads","Tồn >20 chưa chạy"],
+    ["adslow","Ads sắp hết"],
+    ["ads","Đang chạy Ads"],["noads","Chưa chạy Ads"],["top","Top bán chạy"],
+    ["stock10","Tồn ≥ 10"],["stock20","Tồn ≥ 20"],["stock30","Tồn ≥ 30"],
+    ["size5","Đủ 5 size"],["size4","Còn ≥ 4 size"],["size3","Còn ≥ 3 size"],
+    ["risk","Sắp hết"],["outsize","Hết size"],["price","Giá ≥ 600k"],
+    ["goodhigh","Bán tốt + tồn cao"],["noadshigh","Chưa chạy + tồn cao"]
+  ];
+  document.getElementById("filterbar").innerHTML=filters.map(([id,label])=>`<button class="filter-btn ${APP.activeFilter===id?"active":""}" data-filter="${id}">${escapeHtml(label)}</button>`).join("");
+  document.querySelectorAll(".filter-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      APP.activeFilter=btn.dataset.filter;
+      renderFilters(); renderAllTable();
+    });
+  });
+}
+
+function filterItems(items){
+  const q=normalizeHeader(document.getElementById("search-code").value);
+  let arr=items.filter(x=>!q || normalizeHeader(`${x.code} ${x.name}`).includes(q));
+  const s=getSettings();
+
+  switch(APP.activeFilter){
+    case "scale":{
+      const codes=new Set(APP.processed.lists.scale.map(x=>x.code));
+      arr=arr.filter(x=>codes.has(x.code));break;
+    }
+    case "goodnoads":{
+      const codes=new Set(APP.processed.lists.goodNoAds.map(x=>x.code));
+      arr=arr.filter(x=>codes.has(x.code));break;
+    }
+    case "stocknoads":{
+      const codes=new Set(APP.processed.lists.stockNoAds.map(x=>x.code));
+      arr=arr.filter(x=>codes.has(x.code));break;
+    }
+    case "adslow":{
+      const codes=new Set(APP.processed.lists.adsLowStock.map(x=>x.code));
+      arr=arr.filter(x=>codes.has(x.code));break;
+    }
+    case "ads":arr=arr.filter(x=>x.inAds);break;
+    case "noads":arr=arr.filter(x=>!x.inAds);break;
+    case "top":{
+      const topCodes=new Set([...items].sort((a,b)=>b.soldQty-a.soldQty).slice(0,s.topN).map(x=>x.code));
+      arr=arr.filter(x=>topCodes.has(x.code));break;
+    }
+    case "stock10":arr=arr.filter(x=>x.totalStock>=10);break;
+    case "stock20":arr=arr.filter(x=>x.totalStock>=20);break;
+    case "stock30":arr=arr.filter(x=>x.totalStock>=30);break;
+    case "size5":arr=arr.filter(x=>x.sizeCoverage>=5);break;
+    case "size4":arr=arr.filter(x=>x.sizeCoverage>=4);break;
+    case "size3":arr=arr.filter(x=>x.sizeCoverage>=3);break;
+    case "risk":arr=arr.filter(x=>x.stockAlert);break;
+    case "outsize":arr=arr.filter(x=>SIZE_KEYS.some(sz=>(x.stockBySize[sz]||0)<=0));break;
+    case "price":arr=arr.filter(x=>(x.price||0)>=s.minPrice);break;
+    case "goodhigh":arr=arr.filter(x=>x.matrix==="good_high");break;
+    case "noadshigh":arr=arr.filter(x=>!x.inAds && x.highStock);break;
+  }
+
+  const {key,dir}=APP.sort;
+  arr.sort((a,b)=>{
+    const av=getSortVal(a,key),bv=getSortVal(b,key);
+    if(typeof av==="string") return (dir==="asc"?1:-1)*av.localeCompare(bv,"vi");
+    return (dir==="asc"?1:-1)*((av||0)-(bv||0));
+  });
+  return arr;
+}
+
+function getSortVal(x,key){
+  if(key==="price") return x.price||0;
+  if(key==="coverage") return x.sizeCoverage;
+  if(key==="score") return x.potential.score;
+  if(key==="ads") return x.inAds?1:0;
+  return x[key]??0;
+}
+
+function renderAllTable(){
+  if(!APP.processed) return;
+  const arr=filterItems(APP.processed.combined.items);
+  const target=document.getElementById("all-table");
+  const settings=getSettings();
+  if(!arr.length){target.innerHTML=`<div class="empty">Không có dữ liệu phù hợp bộ lọc.</div>`;return;}
+
+  const headers=[
+    ["code","Mã"],["name","Tên sản phẩm"],["price","Giá"],["soldQty","SL bán"],["orderCount","Số đơn"],["revenue","Doanh thu"],
+    ["totalStock","Tổng tồn"],["coverage","Phủ size"],["ads","Ads"],["score","Điểm Ads"]
+  ];
+  let html=`<div class="table-wrap"><table><thead><tr><th>STT</th>`;
+  headers.forEach(([k,l])=>html+=`<th data-sort="${k}">${escapeHtml(l)} ${APP.sort.key===k?(APP.sort.dir==="asc"?"↑":"↓"):""}</th>`);
+  html+=`<th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th><th>Trạng thái</th></tr></thead><tbody>`;
+
+  arr.forEach((x,i)=>{
+    html+=`<tr class="${x.stockAlert?"row-danger":""}">
+      <td>${i+1}</td>
+      <td><a class="code-link" data-code="${escapeAttr(x.code)}">${escapeHtml(x.code)}</a></td>
+      <td>${escapeHtml(x.name||"—")}</td>
+      <td class="num">${money(x.price)}</td>
+      <td class="num">${num(x.soldQty)}</td>
+      <td class="num">${num(x.orderCount)}</td>
+      <td class="num">${x.hasRevenue?money(x.revenue):"—"}</td>
+      <td class="num"><b>${num(x.totalStock)}</b></td>
+      <td>${badge(`${x.sizeCoverage}/5`,"blue")}</td>
+      <td>${x.inAds?badge("ĐANG CHẠY","blue"):badge("CHƯA CHẠY","gray")}</td>
+      <td class="num"><b>${num(x.potential.score,1)}</b></td>
+      <td>${sizeCell(x,"S",settings)}</td><td>${sizeCell(x,"M",settings)}</td><td>${sizeCell(x,"L",settings)}</td><td>${sizeCell(x,"XL",settings)}</td><td>${sizeCell(x,"XXL",settings)}</td>
+      <td>${badge(x.stockStatus,x.stockClass)}</td>
+    </tr>`;
+  });
+  html+="</tbody></table></div>";
+  target.innerHTML=html;
+  bindCodeLinks(target);
+  target.querySelectorAll("th[data-sort]").forEach(th=>{
+    th.addEventListener("click",()=>{
+      const k=th.dataset.sort;
+      if(APP.sort.key===k) APP.sort.dir=APP.sort.dir==="asc"?"desc":"asc";
+      else {APP.sort.key=k;APP.sort.dir="desc";}
+      renderAllTable();
+    });
+  });
+}
+
+function renderDashboard(){
+  const P=APP.processed;
+  if(!P) return;
+  document.getElementById("dashboard-area").style.display="block";
+
+  // V4: 4 nhóm hành động luôn hiển thị trước toàn bộ các thống kê còn lại.
+  renderTable(P.lists.scale,"scale-table",{
+    empty:"Chưa có mã phù hợp để tăng ngân sách theo điều kiện: đang chạy + bán tốt + tồn > 20.",
+    showScore:true
+  });
+  renderTable(P.lists.goodNoAds,"good-noads-table",{
+    empty:"Chưa có mã bán tốt nào đang ở trạng thái chưa chạy Ads.",
+    showScore:true
+  });
+  renderTable(P.lists.stockNoAds,"stock-noads-table",{
+    empty:"Chưa có mã chưa chạy Ads nào có tổng tồn > 20 và đạt điều kiện giá/nhóm hàng.",
+    showScore:true
+  });
+  renderTable(P.lists.adsLowStock,"ads-lowstock-table",{
+    empty:"Không có mã đang chạy Ads nào chỉ còn ≤ 2 size hoặc tổng tồn < 5.",
+    showScore:false
+  });
+
+  renderDataCheck(P.check);
+  renderKpis(P.combined.items,P.lists);
+  renderTable(P.lists.top,"top-table",{showScore:false});
+  renderTable(P.lists.risk,"risk-table",{empty:"Không có mã bán tốt nào đang rơi vào cảnh báo tồn.",showScore:false});
+  renderTable(P.lists.potential,"potential-table",{empty:"Không có mã phù hợp điều kiện giá / nhóm hàng."});
+  renderTable(P.lists.noads,"noads-table",{empty:"Không có mã tồn kho phù hợp đang ở trạng thái chưa chạy Ads."});
+  renderTable(P.lists.hidden,"hidden-table",{empty:"Chưa phát hiện mã tiềm năng tự nhiên theo điều kiện hiện tại."});
+  renderTable(P.lists.weakads,"weakads-table",{empty:"Không có mã đang chạy Ads nhưng ít/chưa có đơn theo ngưỡng hiện tại.",showScore:false});
+  renderMatrix(P.combined);
+  renderFilters();
+  renderAllTable();
+}
+
+/* =========================================================
+   12. DETAIL MODAL
+========================================================= */
+function openDetail(code){
+  if(!APP.processed) return;
+  const x=APP.processed.combined.items.find(i=>i.code===code);
+  if(!x) return;
+  document.getElementById("modal-title").textContent=x.code;
+  document.getElementById("modal-sub").textContent=x.name||"Chi tiết mã sản phẩm";
+
+  const ads=x.adNames.length?`<ul class="ad-list">${x.adNames.map(a=>`<li>${escapeHtml(a)}</li>`).join("")}</ul>`:`<div class="muted">Không có tên quảng cáo chứa mã này.</div>`;
+  const evaluation = x.stockAlert
+    ? "Tồn kho đang ở vùng cảnh báo; không xếp mã vào nhóm ưu tiên vít mạnh."
+    : x.potential.group;
+
+  document.getElementById("modal-body").innerHTML=`
+    <div class="modal-grid">
+      ${mini("Giá",money(x.price))}
+      ${mini("SL bán",num(x.soldQty))}
+      ${mini("Số đơn",num(x.orderCount))}
+      ${mini("Doanh thu",x.hasRevenue?money(x.revenue):"—")}
+      ${mini("Tổng tồn",num(x.totalStock))}
+      ${mini("S",num(x.stockBySize.S))}
+      ${mini("M",num(x.stockBySize.M))}
+      ${mini("L",num(x.stockBySize.L))}
+      ${mini("XL",num(x.stockBySize.XL))}
+      ${mini("XXL",num(x.stockBySize.XXL))}
+      ${mini("Độ phủ size",`${x.sizeCoverage}/5`)}
+      ${mini("Đang chạy Ads",x.inAds?"Có":"Không")}
+    </div>
+    <div style="height:14px"></div>
+    <div class="mini"><div class="l">ĐÁNH GIÁ</div><div style="margin-top:6px;line-height:1.6">${escapeHtml(evaluation)}</div></div>
+    <div style="height:10px"></div>
+    <div class="mini"><div class="l">ĐIỂM TIỀM NĂNG ADS</div>
+      <div style="margin-top:6px;line-height:1.7">
+        Tổng: <b>${num(x.potential.score,1)}/100</b><br>
+        Sức bán: ${num(x.potential.saleScore,1)}/35 ·
+        Tồn: ${num(x.potential.stockScore,1)}/25 ·
+        Phủ size: ${num(x.potential.coverageScore,1)}/20 ·
+        Cân bằng size: ${num(x.potential.balanceScore,1)}/10 ·
+        Giá trị: ${num(x.potential.valueScore,1)}/10
+      </div>
+    </div>
+    <div style="height:10px"></div>
+    <div class="mini"><div class="l">TÊN QUẢNG CÁO ĐANG CHỨA MÃ</div>${ads}</div>
+  `;
+  document.getElementById("detail-modal").classList.add("open");
+}
+
+function mini(l,v){return `<div class="mini"><div class="l">${escapeHtml(l)}</div><div class="v">${escapeHtml(v)}</div></div>`;}
+
+/* =========================================================
+   13. EXPORT EXCEL
+========================================================= */
+function exportExcel(kind){
+  if(!APP.processed){alert("Chưa có dữ liệu phân tích.");return;}
+  if(typeof XLSX==="undefined"){alert("Không tải được SheetJS.");return;}
+
+  const P=APP.processed;
+  const wb=XLSX.utils.book_new();
+  const addSheet=(name,items)=>{
+    const rows=items.map(rowToExport);
+    const ws=XLSX.utils.json_to_sheet(rows);
+    if(rows.length){
+      ws["!cols"]=[
+        {wch:16},{wch:34},{wch:14},{wch:10},{wch:10},{wch:16},{wch:12},
+        {wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:12},{wch:18},{wch:14},{wch:12},{wch:28}
+      ];
+      // Ép cột mã về text.
+      const range=XLSX.utils.decode_range(ws["!ref"]);
+      for(let r=1;r<=range.e.r;r++){
+        const cell=ws[XLSX.utils.encode_cell({r,c:0})];
+        if(cell){cell.t="s";cell.z="@";}
+      }
+    }
+    XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31));
+  };
+
+  if(kind==="scale") addSheet("Can tang ngan sach",P.lists.scale);
+  else if(kind==="good-noads") addSheet("Ban tot chua Ads",P.lists.goodNoAds);
+  else if(kind==="stock-noads") addSheet("Ton tren 20 chua Ads",P.lists.stockNoAds);
+  else if(kind==="ads-lowstock") addSheet("Ads sap het hang",P.lists.adsLowStock);
+  else if(kind==="top") addSheet("Top bán chạy",P.lists.top);
+  else if(kind==="risk") addSheet("Bán tốt sắp hết",P.lists.risk);
+  else if(kind==="noads") addSheet("Tồn nhiều chưa Ads",P.lists.noads);
+  else if(kind==="hidden") addSheet("Tiềm năng chưa Ads",P.lists.hidden);
+  else if(kind==="weakads") addSheet("Ads ít chưa đơn",P.lists.weakads);
+  else if(kind==="potential") addSheet("Gợi ý Ads",P.lists.potential);
+  else if(kind==="all") addSheet("Toàn bộ",P.combined.items);
+  else{
+    addSheet("Can tang ngan sach",P.lists.scale);
+    addSheet("Ban tot chua Ads",P.lists.goodNoAds);
+    addSheet("Ton tren 20 chua Ads",P.lists.stockNoAds);
+    addSheet("Ads sap het hang",P.lists.adsLowStock);
+    addSheet("Top bán chạy",P.lists.top);
+    addSheet("Bán tốt sắp hết",P.lists.risk);
+    addSheet("Tồn nhiều chưa Ads",P.lists.noads);
+    addSheet("Tiềm năng chưa Ads",P.lists.hidden);
+    addSheet("Ads ít chưa đơn",P.lists.weakads);
+    addSheet("Gợi ý Ads",P.lists.potential);
+    addSheet("Toàn bộ",P.combined.items);
+  }
+
+  const stamp=new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb,`SevenAM_PhanTich_${kind}_${stamp}.xlsx`);
+}
+
+/* =========================================================
+   14. ANALYZE
+========================================================= */
+function analyze(){
+  for(const type of ["inventory","ads","orders"]){
+    if(!APP.files[type]){alert(`Chưa tải file ${FILE_CONFIG[type].label}.`);return;}
+    if(!requiredMappingOK(type,APP.files[type].mapping)){
+      alert(`File ${FILE_CONFIG[type].label}: chưa nhận diện đủ cột bắt buộc. Hãy chọn cột thủ công.`);
+      return;
+    }
+  }
+
+  const settings=getSettings();
+  const inv=processInventory(APP.files.inventory);
+  const ads=processAds(APP.files.ads);
+  const orders=processOrders(APP.files.orders);
+  const combined=combineData(inv,ads,orders,settings);
+  const check=buildDataCheck(inv,ads,orders,combined);
+  const lists=buildLists(combined,settings);
+
+  APP.processed={inv,ads,orders,combined,check,lists,settings};
+  renderDashboard();
+  window.scrollTo({top:document.getElementById("scale-table").closest(".panel").offsetTop-10,behavior:"smooth"});
+}
+
+/* =========================================================
+   15. FILE EVENTS
+========================================================= */
+async function onFile(type,file){
+  try{
+    document.getElementById(`status-${type}`).textContent="Đang đọc...";
+    const data=await readWorkbookFile(file);
+    APP.files[type]={
+      ...data,
+      fileName:file.name,
+      mapping:detectColumns(data.headers,type)
+    };
+    renderFileMapping(type);
+  }catch(err){
+    APP.files[type]=null;
+    renderFileMapping(type);
+    alert(`Lỗi đọc file ${FILE_CONFIG[type].label}: ${err.message}`);
+  }
+}
+
+for(const type of ["inventory","ads","orders"]){
+  document.getElementById(`file-${type}`).addEventListener("change",e=>{
+    const file=e.target.files?.[0];
+    if(file) onFile(type,file);
+  });
+}
+
+/* =========================================================
+   16. UI EVENTS
+========================================================= */
+document.getElementById("btn-analyze").addEventListener("click",analyze);
+document.getElementById("btn-settings").addEventListener("click",()=>document.getElementById("settings-panel").classList.toggle("open"));
+document.getElementById("btn-export-all").addEventListener("click",()=>exportExcel("full"));
+document.getElementById("btn-reset").addEventListener("click",()=>{
+  if(!confirm("Xóa toàn bộ dữ liệu đã tải và kết quả phân tích?")) return;
+  location.reload();
+});
+document.querySelectorAll("[data-export]").forEach(btn=>btn.addEventListener("click",()=>exportExcel(btn.dataset.export)));
+document.getElementById("search-code").addEventListener("input",renderAllTable);
+document.getElementById("modal-close").addEventListener("click",()=>document.getElementById("detail-modal").classList.remove("open"));
+document.getElementById("detail-modal").addEventListener("click",e=>{
+  if(e.target.id==="detail-modal") e.currentTarget.classList.remove("open");
+});
+
+/* =========================================================
+   17. SELF TEST FOR CORE CODE RULES
+========================================================= */
+(function selfTest(){
+  const tests=[
+    ["B730358I",normalizeProductCode("b730358i")==="B730358I"],
+    ["SET -",parseSetCodes("SET B730358I - H103299K").length===2],
+    ["SET +",parseSetCodes("B730358I + H103299K").length===2],
+    ["SET space",parseSetCodes("B730358I H103299K").length===2],
+    ["Parent+size",getParentCode("B730358I2")==="B730358I"],
+    ["Size M",detectSize("B730358I2").size==="M"],
+    ["VN money",parseVietnameseNumber("1.599.000đ")===1599000]
+  ];
+  const failed=tests.filter(t=>!t[1]);
+  if(failed.length) console.warn("Self-test failed:",failed.map(x=>x[0]));
+})();
+</script>
+</body>
+</html>
